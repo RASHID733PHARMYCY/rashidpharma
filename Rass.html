@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RashidPharma360</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8f8f8;
+    }
+    header {
+      background: #2d7a2d;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #2d7a2d;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    .btn {
+      background: #2d7a2d;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input, select {
+      padding: 8px;
+      width: 100%;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>RashidPharma360</h1>
+    <p>Online Pharmacy Management System</p>
+  </header>
+  <div class="container">
+    <h2>Add New Medicine</h2>
+    <form id="addMedicineForm">
+      <label>Medicine Name</label>
+      <input type="text" id="medicineName" required>
+      <label>Quantity</label>
+      <input type="number" id="medicineQty" required>
+      <label>Price per Unit</label>
+      <input type="number" id="medicinePrice" required>
+      <button class="btn" type="submit">Add to Stock</button>
+    </form>
+
+    <h2>Stock</h2>
+    <table id="stockTable">
+      <thead>
+        <tr>
+          <th>Medicine</th>
+          <th>Quantity</th>
+          <th>Price/Unit</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>Create Order</h2>
+    <form id="orderForm">
+      <label>Customer Name</label>
+      <input type="text" id="customerName" required>
+      <label>Select Medicine</label>
+      <select id="medicineSelect"></select>
+      <label>Quantity</label>
+      <input type="number" id="orderQty" required>
+      <button class="btn" type="submit">Place Order</button>
+    </form>
+
+    <h2>Order History</h2>
+    <table id="orderHistory">
+      <thead>
+        <tr>
+          <th>Customer</th>
+          <th>Medicine</th>
+          <th>Quantity</th>
+          <th>Total Price</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const stock = [];
+    const orders = [];
+
+    const addMedicineForm = document.getElementById('addMedicineForm');
+    const stockTable = document.getElementById('stockTable').querySelector('tbody');
+    const medicineSelect = document.getElementById('medicineSelect');
+    const orderForm = document.getElementById('orderForm');
+    const orderHistory = document.getElementById('orderHistory').querySelector('tbody');
+
+    function updateStockTable() {
+      stockTable.innerHTML = '';
+      medicineSelect.innerHTML = '';
+      stock.forEach((item, index) => {
+        const row = <tr><td>${item.name}</td><td>${item.qty}</td><td>${item.price}</td></tr>;
+        stockTable.innerHTML += row;
+        if (item.qty > 0) {
+          medicineSelect.innerHTML += <option value="${index}">${item.name}</option>;
+        }
+      });
+    }
+
+    addMedicineForm.onsubmit = (e) => {
+      e.preventDefault();
+      const name = document.getElementById('medicineName').value;
+      const qty = parseInt(document.getElementById('medicineQty').value);
+      const price = parseFloat(document.getElementById('medicinePrice').value);
+      stock.push({ name, qty, price });
+      updateStockTable();
+      addMedicineForm.reset();
+    };
+
+    orderForm.onsubmit = (e) => {
+      e.preventDefault();
+      const customer = document.getElementById('customerName').value;
+      const medicineIndex = parseInt(document.getElementById('medicineSelect').value);
+      const qty = parseInt(document.getElementById('orderQty').value);
+
+      const medicine = stock[medicineIndex];
+      if (medicine.qty >= qty) {
+        medicine.qty -= qty;
+        const total = medicine.price * qty;
+        orders.push({ customer, name: medicine.name, qty, total });
+        orderHistory.innerHTML += <tr><td>${customer}</td><td>${medicine.name}</td><td>${qty}</td><td>${total.toFixed(2)}</td></tr>;
+        updateStockTable();
+        orderForm.reset();
+      } else {
+        alert('Not enough stock!');
+      }
+    };
+  </script>
+</body>
+</html>
